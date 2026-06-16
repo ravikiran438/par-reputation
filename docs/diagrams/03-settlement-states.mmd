@@ -1,0 +1,12 @@
+stateDiagram-v2
+    [*] --> pending: mint (not yet settled)
+    pending --> settled: payment settles
+    settled --> active: well-formed VIR counts toward reputation
+    settled --> refunded: refund (by agreement)
+    refunded --> valid_evidence: NOT invalidated; engine interprets
+    settled --> charged_back: chargeback (dispute)
+    settled --> disputed: dispute opened
+    active --> charged_back: later reversal
+    charged_back --> invalidated: Settlement-Consistency
+    disputed --> invalidated: Settlement-Consistency
+    invalidated --> [*]

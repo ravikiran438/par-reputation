@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant U as User
+    participant M as Merchant + Network
+    participant Mint as PAR mint()
+    participant Eng as Scoring engine
+    participant Ver as PAR verify()
+    participant Or as Settlement oracle (network-signed)
+    U->>M: authorize + settle (AP2 Checkout + Payment mandates)
+    M-->>Mint: Closed Checkout Mandate (user+merchant signed)
+    M-->>Mint: settlement attestation ref (outcome only)
+    Mint->>Mint: hash mandate, attach operator identities + settlement_ref
+    Mint-->>Eng: Verified Interaction Record (VIR)
+    Eng->>Ver: verify(VIR, mandate_resolver, settlement_resolver)
+    Ver->>M: re-resolve checkout mandate by ref (hash check)
+    Ver->>Or: resolve settlement attestation (live outcome)
+    Or-->>Ver: settled | refunded | charged_back | disputed
+    Ver-->>Eng: {verified, well_formed, active, violations}

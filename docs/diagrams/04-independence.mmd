@@ -1,0 +1,15 @@
+flowchart LR
+    subgraph Healthy["Diverse operator (score 1.0)"]
+        b1["buyer b1"] --> S1["service agent O"]
+        b2["buyer b2"] --> S1
+        b3["buyer ...15"] --> S1
+    end
+    subgraph Wash["Self-dealing pair (score 0.39)"]
+        O2["operator O"]
+        C2["operator C (same actor)"]
+        O2 -->|8 settled txns| C2
+        C2 -->|8 settled txns| O2
+        O2 -.-> r1["real buyer"]
+        O2 -.-> r2["real buyer"]
+    end
+    C2 -->|flag| F["reciprocal_cluster<br/>high_concentration<br/>low_diversity"]

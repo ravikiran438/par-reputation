@@ -1,0 +1,23 @@
+digraph independence {
+  rankdir=LR; bgcolor="white"; fontname="Helvetica";
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10];
+  edge [fontname="Helvetica", fontsize=9];
+
+  subgraph cluster_h {
+    label="Diverse operator   score 1.0  (no flags)"; style="rounded,filled"; color="#EAF5EA"; fontname="Helvetica-Bold";
+    O1 [label="service agent O", fillcolor="#D7EED7"];
+    b1 [label="buyer b1", fillcolor="#FFFFFF"]; b2 [label="buyer b2", fillcolor="#FFFFFF"]; b3 [label="buyer ... b15", fillcolor="#FFFFFF"];
+    b1 -> O1; b2 -> O1; b3 -> O1;
+  }
+  subgraph cluster_w {
+    label="Self-dealing pair   score 0.39"; style="rounded,filled"; color="#FBE7E7"; fontname="Helvetica-Bold";
+    O2 [label="operator O", fillcolor="#F6DFB8"];
+    C2 [label="operator C\n(same actor)", fillcolor="#F6DFB8"];
+    r1 [label="real buyer", fillcolor="#FFFFFF"]; r2 [label="real buyer", fillcolor="#FFFFFF"];
+    O2 -> C2 [label="8 settled txns"];
+    C2 -> O2 [label="8 settled txns"];
+    O2 -> r1 [style=dotted]; O2 -> r2 [style=dotted];
+  }
+  FLAG [label="flags:\nreciprocal_cluster\nhigh_concentration\nlow_diversity", shape=note, fillcolor="#E8B7B7", style=filled];
+  C2 -> FLAG [style=dashed];
+}

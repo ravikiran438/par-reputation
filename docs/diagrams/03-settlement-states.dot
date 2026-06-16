@@ -1,0 +1,24 @@
+digraph settlement {
+  rankdir=LR; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11];
+  edge [fontname="Helvetica", fontsize=9];
+
+  start [shape=circle, label="", width=0.2, fillcolor="black", style=filled];
+  pending [label="pending", fillcolor="#EFEFEF"];
+  settled [label="settled", fillcolor="#EAF2FB"];
+  active  [label="active\n(counts toward reputation)", fillcolor="#D7EED7"];
+  refunded [label="refunded\n(valid evidence, not active)", fillcolor="#FBEEDB"];
+  charged [label="charged_back", fillcolor="#F7D9D9"];
+  disputed [label="disputed", fillcolor="#F7D9D9"];
+  invalid [label="invalidated\n(Settlement-Consistency)", fillcolor="#E8B7B7"];
+
+  start -> pending [label="mint"];
+  pending -> settled [label="settles"];
+  settled -> active [label="well-formed"];
+  settled -> refunded [label="refund (by agreement)"];
+  settled -> charged [label="chargeback"];
+  settled -> disputed [label="dispute"];
+  active -> charged [label="later reversal", style=dashed];
+  charged -> invalid;
+  disputed -> invalid;
+}

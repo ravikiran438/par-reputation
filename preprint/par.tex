@@ -1,0 +1,168 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage[numbers]{natbib}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{enumitem}
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue}
+
+\title{\textbf{Provenance-Anchored Reputation:\\ Grounding Agent Reputation in Real, Completed Payments}}
+\author{Ravi Kiran Kadaboina\\ \small Independent Researcher}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+AI agents increasingly transact on behalf of their users, and an agent must often
+judge whether a counterparty is trustworthy before committing to an interaction.
+Reputation systems address this problem for human marketplaces, and several recent
+proposals extend reputation to agents. These proposals share a common weakness: the
+evidence that an interaction occurred is self-issued by the interacting agents, so a
+single operator that controls both sides can fabricate it. We propose to make this
+evidence costly to fabricate by anchoring each reputation record to an artifact that a
+genuine payment already produces, namely a settlement receipt signed by the buyer, the
+merchant, and the payment network. Under this construction, fabricating a record
+requires executing a real, paid transaction. We introduce Provenance-Anchored
+Reputation (PAR), a compact record format with an open-source reference implementation,
+built on the established Agent-to-Agent (A2A) and Agent Payments Protocol (AP2)
+standards. PAR supplies verifiable evidence of interaction; the separate task of
+converting that evidence into a score is delegated to dedicated scoring systems.
+\end{abstract}
+
+\section{Introduction}
+Agents now discover one another, negotiate tasks, and settle payments through shared
+protocols. A2A enables agents to describe their capabilities and communicate, and AP2
+enables an agent to pay using a signed authorization from its user~\cite{ap2,a2a}.
+These protocols establish \emph{who} an agent is and \emph{that} it is authorized to
+pay; they say nothing about \emph{how well} an agent has performed in the past. This
+omission is consequential, because a buyer's agent must choose among competing sellers
+and a seller must decide which buyers to accept.
+
+The same gap is the subject of an open design discussion in the A2A project
+(Discussion~\#1631), which proposes a shared extension for agents to publish trust
+signals, each referencing some underlying record of interaction~\cite{arp1631}. The
+discussion leaves the nature of that record unspecified. In the proposals advanced to
+date, including the Agent Reputation Protocol (ARP) prototype~\cite{arp}, the record is
+self-issued by the interacting parties, either as a row appended to a local ledger or
+as an attestation jointly signed by both agents. Such records are forgeable by a single
+operator that controls both the buyer and the seller, which can synthesize an arbitrary
+interaction history at negligible cost. As participants in the discussion observe,
+resisting this attack requires evidence that an agent cannot unilaterally assert about
+itself.
+
+\section{Approach: reputation evidence as a costly signal}
+Our approach rests on a well-established principle: a signal is credible when it is
+costly to fake. The same principle explains why an educational credential signals
+ability in labor markets~\cite{spence1973signaling}, why a costly biological display
+signals fitness~\cite{zahavi1975handicap}, and why an online review marked ``verified
+purchase'' carries more weight than an anonymous one~\cite{resnick2002}, since each is
+backed by a real, paid transaction.
+
+A reputation record should therefore be expensive to produce. The least costly source
+of such a record is one that a genuine payment already generates. When two parties
+settle a payment on a modern rail, the resulting receipt is co-signed by parties that
+do not trust one another (the user, the merchant, and the payment network) and cannot
+be produced without an actual transfer of funds. Rather than defining a new proof of
+interaction, we anchor each reputation record to this existing, multi-party-signed
+receipt. Because fabricating a record then requires a real, paid transaction, the cost
+of manufacturing fraudulent reputation approaches the cost of earning legitimate
+reputation.
+
+\section{The Verified Interaction Record}
+The unit of PAR is a \emph{Verified Interaction Record} (VIR). A VIR asserts that two
+agents, $A$ and $B$, interacted in defined roles, with $A$ as the service provider and
+$B$ as the buyer, and a stated outcome, and it references the signed payment receipt
+for that transaction. Issuing a VIR requires possession of such a receipt, which
+entails that a real payment occurred.
+
+A VIR comprises four components.
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{Anchor.} A reference to the signed payment receipt together with a
+verifiable fingerprint (a content hash) of it. The receipt must separate \emph{what was
+purchased} from \emph{how it was paid}. AP2's Checkout Mandate is the first such
+receipt; a card-network receipt or a bank-transfer confirmation would serve
+equivalently.
+\item \textbf{Parties.} The two agents, each identified by a durable identity (for
+example, a decentralized identifier) rather than a short-lived process. Reputation
+therefore accrues to the operator behind the agent: a negative record cannot be
+discarded by creating a new agent, and it is never bound to the human customer.
+\item \textbf{Interaction class.} A short label for the task (for example, ``flight
+booking''), so that a record concerning one capability is not misread as evidence about
+another.
+\item \textbf{Outcome.} Whether the payment settled, and whether it was subsequently
+reversed.
+\end{itemize}
+
+A VIR carries only item-level facts (what was purchased, and from whom); it never
+contains payment-instrument data or the customer's personal information. This separation
+follows directly from the receipt's own split between the purchase and the payment.
+
+Outcomes are interpreted with a single distinction. A payment reversed through a dispute
+(a chargeback) indicates that the interaction did not succeed, and the corresponding
+record is invalidated. A refund is treated differently: the interaction took place and
+was undone by mutual agreement, which is frequently a sign of good conduct by the
+seller, so the record remains valid evidence.
+
+\section{Reference implementation}
+We provide an open-source reference implementation comprising the record format, the
+validation rules that enforce its invariants, and the procedure that derives a VIR from
+a genuine AP2 receipt. The validators enforce that a record references a real, signed
+receipt; that it names durable operator identities; that it contains no payment or
+personal data; that the two agents occupy opposite roles; and that a reversed payment
+invalidates the record. A bounded formal model in TLA\textsuperscript{+} mechanically
+checks the most important of these invariants. The implementation, the model, and the
+A2A extension format are publicly available.\footnote{Reference implementation:
+\url{https://github.com/ravikiran438/par-reputation} (Apache-2.0).}
+
+\section{Position in the stack and related work}
+PAR occupies a single layer within a larger stack (Figure~\ref{fig:layering}). Beneath
+it, the core standards (A2A and AP2) supply identity and signed payments. PAR sits
+directly above them and converts a settled payment into an item of reputation evidence.
+Above PAR, independent scoring systems determine how to aggregate many records into a
+score: how to weight recent behavior, how to detect adversarial activity, and how to
+combine signals. These design choices are varied and contested, and we deliberately do
+not commit to any one of them; PAR's role is confined to making the evidence beneath
+those scores trustworthy.
+
+This also defines PAR's relationship to the A2A trust discussion: it is a concrete
+answer to that discussion's open question of what a trust signal should reference. The
+closest existing construction is ERC-8004, which likewise restricts feedback to paying
+customers but records it on a blockchain and on a bare payment proof~\cite{erc8004}.
+PAR requires no blockchain and preserves the full purchase context behind each record.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.66\linewidth]{../docs/diagrams/01-layering.png}
+\caption{Where PAR sits. The core standards provide identity and signed payments; PAR
+turns a settled payment into a reputation record; separate scoring systems sit on top.}
+\label{fig:layering}
+\end{figure}
+
+\section{Scope and limitations}
+PAR raises the cost of fabricating reputation; it does not render fabrication
+impossible. An adversary willing to execute real, paid transactions can still
+accumulate standing, which is the intended outcome, since at that point the adversary
+incurs roughly the cost borne by an honest seller. Detecting collusion distributed
+across many accounts, and converting records into scores, are responsibilities of the
+scoring layer above PAR rather than of the evidence layer itself. Finally, PAR depends
+on a payment rail that issues receipts with the required structure; AP2 is the first
+such rail, and we anticipate others.
+
+\section{Conclusion}
+The contribution is deliberately narrow. Rather than defining a new proof that two
+agents interacted, PAR reuses the signed receipt that a genuine payment already
+produces, rendering a reputation record costly to fabricate. The result is a thin,
+off-chain evidence layer for agent reputation, built entirely on existing standards and
+accompanied by a working reference implementation. The harder and more plural problem of
+scoring is left to the systems designed for it.
+
+\bibliographystyle{plainnat}
+\bibliography{par}
+
+\end{document}

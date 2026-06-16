@@ -1,0 +1,22 @@
+flowchart TB
+    subgraph Scoring["Scoring layer"]
+        ARP["ARP<br/>ledger scoring"]
+        MOLT["MoltBridge<br/>trust graph"]
+        OTHER["other engines"]
+    end
+    subgraph Attest["Trust-attestation surface"]
+        ATT["minimal attestation<br/>issuer · subject · scope · assertion · evidence_ref"]
+    end
+    subgraph PAR["Evidence layer"]
+        VIR["Verified Interaction Record<br/>anchored to AP2 mandate"]
+    end
+    subgraph Core["Core specifications"]
+        A2A["A2A<br/>identity + transport"]
+        AP2["AP2<br/>signed mandates (VDCs)"]
+    end
+    ARP --> ATT
+    MOLT -->|consume| ATT
+    OTHER --> ATT
+    ATT -->|evidence_ref| VIR
+    VIR -->|extends| A2A
+    VIR -->|anchors to| AP2

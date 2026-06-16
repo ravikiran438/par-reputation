@@ -1,0 +1,36 @@
+digraph layering {
+  rankdir=TB; bgcolor="white"; fontname="Helvetica"; nodesep=0.55; ranksep=0.75;
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, margin="0.20,0.11"];
+  edge [fontname="Helvetica", fontsize=9, color="#555555"];
+
+  subgraph cluster_score {
+    label="Scoring layer"; labelloc="t"; style="rounded,filled"; color="#E8EEF7";
+    fontname="Helvetica-Bold"; fontsize=12;
+    ARP  [label="ARP\nledger scoring", fillcolor="#DCE6F5"];
+    MOLT [label="MoltBridge\ntrust graph", fillcolor="#DCE6F5", group="spine"];
+    OTH  [label="other engines", fillcolor="#DCE6F5"];
+  }
+  subgraph cluster_attest {
+    label="Trust-attestation surface"; labelloc="t"; style="rounded,filled"; color="#EAF5EA";
+    fontname="Helvetica-Bold"; fontsize=12;
+    ATT [label="minimal attestation\nissuer · subject · scope · assertion · evidence_ref",
+         fillcolor="#D7EED7", group="spine"];
+  }
+  subgraph cluster_par {
+    label="Evidence layer"; labelloc="t"; style="rounded,filled"; color="#FBEEDB";
+    fontname="Helvetica-Bold"; fontsize=12;
+    VIR [label="Verified Interaction Record\nanchored to AP2 mandate",
+         fillcolor="#F6DFB8", group="spine"];
+  }
+  subgraph cluster_core {
+    label="Core specifications"; labelloc="t"; style="rounded,filled"; color="#EFEFEF";
+    fontname="Helvetica-Bold"; fontsize=12;
+    A2A [label="A2A\nidentity + transport", fillcolor="#E0E0E0"];
+    AP2 [label="AP2\nsigned mandates (VDCs)", fillcolor="#E0E0E0"];
+  }
+
+  ARP -> ATT; MOLT -> ATT [label="consume"]; OTH -> ATT;
+  ATT -> VIR [label="evidence_ref"];
+  VIR -> A2A [label="extends"];
+  VIR -> AP2 [label="anchors to"];
+}

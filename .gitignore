@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.venv/
+dist/
+build/
+
+# latex intermediates
+preprint/*.aux
+preprint/*.bbl
+preprint/*.blg
+preprint/*.log
+preprint/*.out
+
+# macOS
+.DS_Store

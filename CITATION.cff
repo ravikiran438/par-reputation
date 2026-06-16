@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Provenance-Anchored Reputation: Grounding Agent Reputation in Real, Completed Payments"
+authors:
+  - family-names: Kadaboina
+    given-names: Ravi Kiran
+year: 2026
+publisher:
+  name: Zenodo
+doi: 10.5281/zenodo.20712592
+url: "https://doi.org/10.5281/zenodo.20712592"
+license: Apache-2.0
+repository-code: "https://github.com/ravikiran438/par-reputation"
+type: software

@@ -1,0 +1,18 @@
+digraph mintverify {
+  rankdir=TB; bgcolor="white";
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, fillcolor="#EAF2FB"];
+  edge [fontname="Helvetica", fontsize=9];
+
+  S1 [label="User authorizes + settles\n(AP2 Checkout + Payment mandates)"];
+  S2 [label="Closed Checkout Mandate\nsigned by user + merchant", fillcolor="#F6DFB8"];
+  S3 [label="PAR mint()\nhash mandate · attach operator identities\n+ settlement_ref"];
+  S4 [label="Verified Interaction Record (VIR)", fillcolor="#F6DFB8"];
+  S5 [label="Scoring engine\ncalls verify(VIR, mandate_resolver, settlement_resolver)"];
+  S6 [label="PAR verify()\nre-resolve mandate (hash) · run validators"];
+  OR [label="Settlement oracle\n(network/PSP-signed, outcome only)", fillcolor="#D7EED7"];
+  S7 [label="{ verified, well_formed, active, violations }", fillcolor="#D7EED7"];
+
+  S1 -> S2 -> S3 -> S4 -> S5 -> S6 -> S7;
+  S6 -> S2 [label="re-resolve by ref", style=dashed, constraint=false];
+  S6 -> OR [label="live outcome", style=dashed, constraint=false];
+}
