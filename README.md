@@ -2,7 +2,7 @@
 
 **Status:** Phase 0 prototype · Draft v0.1 · Apache-2.0
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20712592.svg)](https://doi.org/10.5281/zenodo.20712592)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20712593.svg)](https://doi.org/10.5281/zenodo.20712593)
 
 A standardized **evidence layer** for agent reputation, built on one principle:
 reputation evidence should be a **costly signal** (Spence's signaling theory,
